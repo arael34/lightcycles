@@ -1,3 +1,5 @@
+use termion::color::Color;
+
 pub enum Direction {
     Left, Right,
     Up, Down
@@ -7,11 +9,23 @@ pub enum Direction {
 // and direction. 
 pub struct Point {
     pub pos: (u16, u16),
+    pub color: u8,
     direction: Direction,
 }
 
 impl Point {
-    pub fn new( x: u16, y: u16, direction: Direction ) -> Self {
-        Point { pos: (x, y), direction }
+    pub fn new( pos: (u16, u16), color: u8, direction: Direction ) -> Self {
+        Point { pos, color, direction }
+    }
+    pub fn step(&mut self) {
+        match &self.direction {
+            Direction::Left => self.pos.0 -= 1,
+            Direction::Right => self.pos.0 += 1,
+            Direction::Up => self.pos.1 -= 1,
+            Direction::Down => self.pos.1 += 1,
+        }
+
+        // randomly change direction
+        todo!()
     }
 }

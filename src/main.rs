@@ -1,6 +1,6 @@
 mod types;
 
-use std::io::{self, Write};
+use std::{io::{self, Write}, thread::sleep, time::Duration};
 use termion::{clear, color, cursor, cursor::{Hide, Show}};
 use types::{Point, Direction};
 
@@ -16,16 +16,26 @@ fn main() -> io::Result<()>{
     print!("{}{}", clear::All, Hide);
     io::stdout().flush()?;
 
+    // maybe make into arr?
+    let mut point_vec: Vec<Point> = vec![];
+
+    point_vec.push(Point::new((2, 2), 0, Direction::Right));
+    point_vec.push(Point::new((4, 1), 0, Direction::Down));
+
     // event loop
     loop {
-        // Move the cursor to the top-left corner of the terminal screen
-        print!("{}{}", cursor::Goto(1, 1), color::Fg(color::Red));
-        print!("X");
+        // Print and step points
+        for point in point_vec.iter_mut() {
+            cursor::Goto(point.pos.0, point.pos.1);
 
-        print!("{}{}", cursor::Goto(5, 1), color::Fg(color::Reset));
-        println!("O");
+            print!("X");
+            point.step();
+        }
 
         // Flush the output to the terminal
         io::stdout().flush()?;
+        sleep(Duration::from_millis(100));
     }
 }
+
+// for reference. cursor::Goto for moving, color::Fg for color

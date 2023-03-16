@@ -31,6 +31,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99227334921fae1a979cf0bfdfcc6b3e5ce376ef57e16fb6fb3ea2ed6095f80c"
 
 [[package]]
+name = "lightcycles"
+version = "0.1.0"
+dependencies = [
+ "ctrlc",
+ "termion",
+]
+
+[[package]]
 name = "nix"
 version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -47,14 +55,6 @@ name = "numtoa"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8f8bdf33df195859076e54ab11ee78a1b208382d3a26ec40d142ffc1ecc49ef"
-
-[[package]]
-name = "pipes"
-version = "0.1.0"
-dependencies = [
- "ctrlc",
- "termion",
-]
 
 [[package]]
 name = "redox_syscall"
