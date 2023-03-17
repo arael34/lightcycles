@@ -1,41 +1,44 @@
 mod types;
 
 use std::{io::{self, Write}, thread::sleep, time::Duration};
-use termion::{clear, color, cursor, cursor::{Hide, Show}};
+use termion::{
+    style,
+    clear,
+    color,
+    terminal_size,
+    cursor::{self, Hide, Show},
+};
 use types::{Point, Direction};
 
 fn main() -> io::Result<()>{
     // Cleanup when program executes. show cursor, clear screen
     let _handler = ctrlc::set_handler(|| {
-        print!("{}{}", clear::All, Show);
+        print!("{}{}{}{}", clear::All, style::Reset, Show, cursor::Goto(1, 1));
         io::stdout().flush().expect("Failed to clean up.");
         std::process::exit(0);
     }).unwrap();
 
     // Clear screen and hide cursor
-    print!("{}{}", clear::All, Hide);
+    print!("{}{}{}", clear::All, style::Bold, Hide);
     io::stdout().flush()?;
 
     // maybe make into arr?
     let mut point_vec: Vec<Point> = vec![];
+    let (width, height) = terminal_size().unwrap();
 
-    point_vec.push(Point::new((2, 2), 0, Direction::Right));
-    point_vec.push(Point::new((4, 1), 0, Direction::Down));
+    // test
+    point_vec.push(Point::new((10, 10), color::Rgb(255, 0, 0), Direction::Right));
 
     // event loop
     loop {
         // Print and step points
         for point in point_vec.iter_mut() {
-            cursor::Goto(point.pos.0, point.pos.1);
-
-            print!("X");
-            point.step();
+            print!("{}{}x", cursor::Goto(point.pos.0, point.pos.1), color::Fg(point.color));
+            point.step(width, height);
         }
 
         // Flush the output to the terminal
         io::stdout().flush()?;
-        sleep(Duration::from_millis(100));
+        sleep(Duration::from_millis(50));
     }
 }
-
-// for reference. cursor::Goto for moving, color::Fg for color
