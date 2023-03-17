@@ -1,4 +1,4 @@
-use termion::color;
+use termion::color::Color;
 use crate::gen_rand;
 
 pub enum Direction {
@@ -16,7 +16,7 @@ impl Direction {
             _ => panic!(),
         }
     }
-    pub fn get_int(&self) -> u8 {
+    pub fn int(&self) -> u8 {
         match self {
             Self::Left => 0,
             Self::Up => 1,
@@ -30,12 +30,16 @@ impl Direction {
 // and direction. 
 pub struct Point {
     pub pos: (u16, u16),
-    pub color: color::Rgb,
+    pub color: Box<dyn Color>,
     direction: Direction,
 }
 
 impl Point {
-    pub fn new( pos: (u16, u16), color: color::Rgb, direction: Direction ) -> Self {
+    pub fn new(
+        pos: (u16, u16),
+        color: Box<dyn Color>,
+        direction: Direction 
+    ) -> Self {
         Point { pos, color, direction }
     }
     pub fn step(&mut self, width: u16, height: u16) {
@@ -61,7 +65,7 @@ impl Point {
         // randomly change direction
         let gr = gen_rand(50);
         if gr == 0 {
-            self.direction = Direction::new((self.direction.get_int() + 1) % 4);
+            self.direction = Direction::new((self.direction.int() + 1) % 4);
         }
     }
 }

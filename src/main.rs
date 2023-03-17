@@ -11,13 +11,15 @@ use termion::{
 use types::{Point, Direction};
 use std::time::SystemTime;
 
+const COUNT: u8 = 5;
+
 // Pseudorandom num gen
-pub fn gen_rand(ceil: u64) -> u8{
+pub fn gen_rand(ceil: u64) -> u16 {
     let time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    return ((time / 1000) as u64 % ceil) as u8;
+    return ((time / 1000) as u64 % ceil) as u16;
 }
 
 fn main() -> io::Result<()>{
@@ -36,14 +38,23 @@ fn main() -> io::Result<()>{
     let mut point_vec: Vec<Point> = vec![];
     let (width, height) = terminal_size().unwrap();
 
-    // test
-    point_vec.push(Point::new((10, 10), color::Rgb(255, 0, 0), Direction::new(gen_rand(4))));
+    for _ in 0..COUNT {
+        point_vec.push(Point::new(
+            (gen_rand(width as u64), gen_rand(height as u64)),
+            Box::new(color::Red),
+            Direction::new(gen_rand(4) as u8))
+        )
+    }
 
     // event loop
     loop {
         // Print and step points
         for point in point_vec.iter_mut() {
-            print!("{}{}x", cursor::Goto(point.pos.0, point.pos.1), color::Fg(point.color));
+            print!(
+                "{}{}x",
+                cursor::Goto(point.pos.0, point.pos.1),
+                color::Fg(point.color.as_ref())
+            );
             point.step(width, height);
         }
 
