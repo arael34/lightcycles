@@ -46,6 +46,6 @@ fn main() -> io::Result<()>{
         sleep(Duration::from_millis(50));
 
         // testing
-        print!("{}", clear::All);
+        // print!("{}", clear::All);
     }
 }

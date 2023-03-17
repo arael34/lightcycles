@@ -1,4 +1,4 @@
-use termion::color::{Color, self};
+use termion::color::{self, Color};
 use std::time::SystemTime;
 
 // Pseudorandom num gen
@@ -8,6 +8,32 @@ fn gen_rand(ceil: u64) -> u16 {
         .unwrap()
         .as_nanos();
     return ((time / 1000) as u64 % ceil) as u16;
+}
+
+fn color(n: u8) -> Box<dyn Color> {
+    match n {
+        0 => return Box::new(color::Black),
+        1 => return Box::new(color::Red),
+        2 => return Box::new(color::Green),
+        3 => return Box::new(color::Yellow),
+
+        4 => return Box::new(color::Blue),
+        5 => return Box::new(color::Magenta),
+        6 => return Box::new(color::Cyan),
+        7 => return Box::new(color::White),
+
+        8 => return Box::new(color::LightBlack),
+        9 => return Box::new(color::LightRed),
+        10 => return Box::new(color::LightGreen),
+        11 => return Box::new(color::LightYellow),
+
+        12 => return Box::new(color::LightBlue),
+        13 => return Box::new(color::LightMagenta),
+        14 => return Box::new(color::LightCyan),
+        15 => return Box::new(color::LightWhite),
+
+        _ => panic!()
+    }
 }
 
 pub enum Direction {
@@ -61,8 +87,11 @@ impl<'a> Point<'a> {
 
         for _ in 0..c {
             pv.push(Self::new(
-                (gen_rand(bounds.0 as u64), gen_rand(bounds.1 as u64)),
-                Box::new(color::Red),
+                (
+                    gen_rand((bounds.0 - 1) as u64) + 1,
+                    gen_rand((bounds.1 - 1) as u64) + 1
+                ),
+                color(gen_rand(16) as u8),
                 Direction::direction(gen_rand(4) as u8),
                 bounds
             ));
