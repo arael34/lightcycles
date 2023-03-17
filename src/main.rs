@@ -10,6 +10,7 @@ use termion::{
 };
 use types::Point;
 
+// point count
 const COUNT: u8 = 5;
 
 fn main() -> io::Result<()>{
@@ -24,6 +25,7 @@ fn main() -> io::Result<()>{
     print!("{}{}{}", clear::All, style::Bold, Hide);
     io::stdout().flush()?;
 
+    // terminal bounds and vec of points
     let bounds:(u16, u16) = terminal_size().unwrap();
     let mut pv: Vec<Point> = Point::rand_init(COUNT, &bounds);
 
@@ -42,6 +44,8 @@ fn main() -> io::Result<()>{
         // Flush the output to the terminal
         io::stdout().flush()?;
         sleep(Duration::from_millis(50));
+
+        // testing
         print!("{}", clear::All);
     }
 }

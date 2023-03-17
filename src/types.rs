@@ -16,7 +16,8 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn new(n: u8) -> Self {
+    // u8 to direction
+    pub fn direction(n: u8) -> Self {
         match n {
             0 => Self::Left,
             1 => Self::Up,
@@ -25,6 +26,7 @@ impl Direction {
             _ => panic!(),
         }
     }
+    // direction to u8
     pub fn int(&self) -> u8 {
         match self {
             Self::Left => 0,
@@ -50,10 +52,10 @@ impl<'a> Point<'a> {
         color: Box<dyn Color>,
         direction: Direction,
         bounds: &'a (u16, u16),
-    ) -> Self {
-        Point { pos, color, direction,bounds }
-    }
+    ) -> Self 
+    { Point { pos, color, direction,bounds } }
 
+    // random point initalization
     pub fn rand_init(c: u8, bounds: &'a (u16, u16)) -> Vec<Point<'a>> {
         let mut pv: Vec<Point> = vec![];
 
@@ -61,7 +63,7 @@ impl<'a> Point<'a> {
             pv.push(Self::new(
                 (gen_rand(bounds.0 as u64), gen_rand(bounds.1 as u64)),
                 Box::new(color::Red),
-                Direction::new(gen_rand(4) as u8),
+                Direction::direction(gen_rand(4) as u8),
                 bounds
             ));
         }
@@ -69,6 +71,7 @@ impl<'a> Point<'a> {
         pv
     }
 
+    // step a point, with bounds checking
     pub fn step(&mut self) -> () {
         match &self.direction {
             Direction::Left => {
@@ -92,7 +95,7 @@ impl<'a> Point<'a> {
         // randomly change direction
         let gr = gen_rand(50);
         if gr == 0 {
-            self.direction = Direction::new((self.direction.int() + 1) % 4);
+            self.direction = Direction::direction((self.direction.int() + 1) % 4);
         }
     }
 }
