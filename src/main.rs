@@ -8,19 +8,9 @@ use termion::{
     terminal_size,
     cursor::{self, Hide, Show},
 };
-use types::{Point, Direction};
-use std::time::SystemTime;
+use types::Point;
 
 const COUNT: u8 = 5;
-
-// Pseudorandom num gen
-pub fn gen_rand(ceil: u64) -> u16 {
-    let time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_nanos();
-    return ((time / 1000) as u64 % ceil) as u16;
-}
 
 fn main() -> io::Result<()>{
     // Cleanup when program executes. show cursor, clear screen
@@ -34,32 +24,24 @@ fn main() -> io::Result<()>{
     print!("{}{}{}", clear::All, style::Bold, Hide);
     io::stdout().flush()?;
 
-    // maybe make into arr?
-    let mut point_vec: Vec<Point> = vec![];
-    let (width, height) = terminal_size().unwrap();
-
-    for _ in 0..COUNT {
-        point_vec.push(Point::new(
-            (gen_rand(width as u64), gen_rand(height as u64)),
-            Box::new(color::Red),
-            Direction::new(gen_rand(4) as u8))
-        )
-    }
+    let bounds:(u16, u16) = terminal_size().unwrap();
+    let mut pv: Vec<Point> = Point::rand_init(COUNT, &bounds);
 
     // event loop
     loop {
         // Print and step points
-        for point in point_vec.iter_mut() {
+        for point in pv.iter_mut() {
             print!(
                 "{}{}x",
                 cursor::Goto(point.pos.0, point.pos.1),
                 color::Fg(point.color.as_ref())
             );
-            point.step(width, height);
+            point.step();
         }
 
         // Flush the output to the terminal
         io::stdout().flush()?;
         sleep(Duration::from_millis(50));
+        print!("{}", clear::All);
     }
 }
