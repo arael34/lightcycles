@@ -9,6 +9,16 @@ use termion::{
     cursor::{self, Hide, Show},
 };
 use types::{Point, Direction};
+use std::time::SystemTime;
+
+// Pseudorandom num gen
+pub fn gen_rand(ceil: u64) -> u8{
+    let time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    return ((time / 1000) as u64 % ceil) as u8;
+}
 
 fn main() -> io::Result<()>{
     // Cleanup when program executes. show cursor, clear screen
@@ -27,7 +37,7 @@ fn main() -> io::Result<()>{
     let (width, height) = terminal_size().unwrap();
 
     // test
-    point_vec.push(Point::new((10, 10), color::Rgb(255, 0, 0), Direction::Right));
+    point_vec.push(Point::new((10, 10), color::Rgb(255, 0, 0), Direction::new(gen_rand(4))));
 
     // event loop
     loop {

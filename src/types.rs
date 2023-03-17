@@ -1,9 +1,30 @@
 use termion::color;
+use crate::gen_rand;
 
 pub enum Direction {
     Left, Right,
     Up, Down
 }
+
+impl Direction {
+    pub fn new(n: u8) -> Self {
+        match n {
+            0 => Self::Left,
+            1 => Self::Up,
+            2 => Self::Right,
+            3 => Self::Down,
+            _ => panic!(),
+        }
+    }
+    pub fn get_int(&self) -> u8 {
+        match self {
+            Self::Left => 0,
+            Self::Up => 1,
+            Self::Right => 2,
+            Self::Down => 3,
+        }
+    }
+ }
 
 // Simple Point datatype to store a position on the screen
 // and direction. 
@@ -38,6 +59,9 @@ impl Point {
         }
 
         // randomly change direction
-        // todo!()
+        let gr = gen_rand(50);
+        if gr == 0 {
+            self.direction = Direction::new((self.direction.get_int() + 1) % 4);
+        }
     }
 }
