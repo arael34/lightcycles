@@ -1,13 +1,12 @@
 use termion::color::{self, Color};
 use std::time::SystemTime;
 
-// Pseudorandom num gen
-fn gen_rand(ceil: u64) -> u16 {
-    let time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_nanos();
-    return ((time / 1000) as u64 % ceil) as u16;
+// Generate random num and mod by ceil
+fn gen_rand(ceil: u16) -> u16 {
+    let mut lcg = Lcg::new();
+    let num = lcg.next().unwrap() as u16 % ceil;
+
+    num
 }
 
 fn color(n: u8) -> Box<dyn Color> {
@@ -36,9 +35,45 @@ fn color(n: u8) -> Box<dyn Color> {
     }
 }
 
+// Pseudorandom number gen
+struct Lcg {
+    state: u64,
+    a: u64,
+    c: u64,
+    m: u64,
+}
+
+impl Lcg {
+    fn new() -> Self {
+        // initialize with "random" state
+        let state = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos() as u64;
+
+        Lcg {
+            state,
+            a: 1664525,
+            c: 1013904223,
+            m: u64::MAX,
+        }
+    }
+}
+
+impl Iterator for Lcg {
+    type Item = u64;
+
+    // Generate new "random" number
+    fn next(&mut self) -> Option<Self::Item> {
+        self.state = (self.a * self.state + self.c) % self.m;
+        Some(self.state)
+    }
+}
+
+
 pub enum Direction {
     Left, Right,
-    Up, Down
+    Up, Down,
 }
 
 impl Direction {
@@ -88,8 +123,8 @@ impl<'a> Point<'a> {
         for _ in 0..c {
             pv.push(Self::new(
                 (
-                    gen_rand((bounds.0 - 1) as u64) + 1,
-                    gen_rand((bounds.1 - 1) as u64) + 1
+                    gen_rand(bounds.0 - 1) + 1,
+                    gen_rand(bounds.1 - 1) + 1
                 ),
                 color(gen_rand(16) as u8),
                 Direction::direction(gen_rand(4) as u8),
@@ -123,8 +158,7 @@ impl<'a> Point<'a> {
         
         // randomly change direction
         let gr = gen_rand(50);
-        if gr == 0 {
-            self.direction = Direction::direction((self.direction.int() + 1) % 4);
-        }
+        if gr != 1 { return; }
+        self.direction = Direction::direction((self.direction.int() + 1) % 4);
     }
 }
