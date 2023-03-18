@@ -11,7 +11,13 @@ use termion::{
 use types::Point;
 
 // point count
-const COUNT: u8 = 4;
+const COUNT: u8 = 5;
+const PIPES: [[char; 4]; 4] = [
+    ['━', '┗', '━', '┏'],
+    ['┓', '┃', '┏', '┃'],
+    ['━', '┛', '━', '┓'],
+    ['┛', '┃', '┗', '┃'],
+];
 
 fn main() -> io::Result<()>{
     // Cleanup when program executes. show cursor, clear screen
@@ -33,12 +39,14 @@ fn main() -> io::Result<()>{
     loop {
         // Print and step points
         for point in pv.iter_mut() {
-            point.step();
+            let ch = PIPES[point.direction.int() as usize][point.next_direction.int() as usize];
             print!(
-                "{}{}\u{2588}", // full block
+                "{}{}{}", // half block
                 cursor::Goto(point.pos.0, point.pos.1),
-                color::Fg(point.color.as_ref())
+                color::Fg(point.color.as_ref()),
+                ch
             );
+            point.step();
         }
 
     // Flush the output to the terminal
