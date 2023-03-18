@@ -144,27 +144,28 @@ impl<'a> Point<'a> {
     pub fn step(&mut self) -> () {
         self.direction = Direction::direction(self.next_direction.int());
 
+        // randomly change direction
+        let mut gr = gen_rand(25);
+
         match self.direction {
             Direction::Left => {
                 if self.pos.0 > 1 { self.pos.0 -= 1; }
-                else { self.next_direction = Direction::Down; }
+                else { gr = 1; }
             },
             Direction::Right => {
                 if self.pos.0 < self.bounds.0 - 1 { self.pos.0 += 1; }
-                else { self.next_direction = Direction::Up }
+                else { gr = 1; }
             },
             Direction::Up => {
                 if self.pos.1 > 1 { self.pos.1 -= 1; }
-                else { self.next_direction = Direction::Left; }
+                else { gr = 1; }
             },
             Direction::Down => {
                 if self.pos.1 <= self.bounds.1 { self.pos.1 += 1; }
-                else { self.next_direction = Direction::Right; }
+                else { gr = 1; }
             },
         }
 
-        // randomly change direction
-        let gr = gen_rand(50);
         if gr != 1 { return; }
         let mv = gen_rand(2);
         if self.next_direction.int() % 2 == 0 {

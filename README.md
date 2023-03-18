@@ -1,5 +1,6 @@
 # Lightcycles
 make your terminal look like lightcycles from Tron :)
+heavily(and I mean heavily) inspired by pipes.sh
 
 ## Installation
 first, make sure git and cargo are installed

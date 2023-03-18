@@ -12,7 +12,8 @@ use types::Point;
 
 // point count
 const COUNT: u8 = 5;
-const PIPES: [[char; 4]; 4] = [
+// Trail characters
+const TRAILS: [[char; 4]; 4] = [
     ['━', '┗', '━', '┏'],
     ['┓', '┃', '┏', '┃'],
     ['━', '┛', '━', '┓'],
@@ -39,7 +40,8 @@ fn main() -> io::Result<()>{
     loop {
         // Print and step points
         for point in pv.iter_mut() {
-            let ch = PIPES[point.direction.int() as usize][point.next_direction.int() as usize];
+            let ch = TRAILS[point.direction.int() as usize]
+                [point.next_direction.int() as usize];
             print!(
                 "{}{}{}", // half block
                 cursor::Goto(point.pos.0, point.pos.1),
