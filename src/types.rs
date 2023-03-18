@@ -40,7 +40,6 @@ struct Lcg {
     state: u64,
     a: u64,
     c: u64,
-    m: u64,
 }
 
 impl Lcg {
@@ -55,7 +54,6 @@ impl Lcg {
             state,
             a: 1664525,
             c: 1013904223,
-            m: u64::MAX,
         }
     }
 }
@@ -65,13 +63,13 @@ impl Iterator for Lcg {
 
     // Generate new "random" number
     fn next(&mut self) -> Option<Self::Item> {
-        self.state = (self.a * self.state + self.c) % self.m;
+        self.state = self.a.wrapping_mul(self.state).wrapping_add(self.c);
         Some(self.state)
     }
 }
 
 
-pub enum Direction {
+enum Direction {
     Left, Right,
     Up, Down,
 }
@@ -155,7 +153,7 @@ impl<'a> Point<'a> {
                 else { self.direction = Direction::Up; }
             },
         }
-        
+
         // randomly change direction
         let gr = gen_rand(50);
         if gr != 1 { return; }

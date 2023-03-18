@@ -11,7 +11,7 @@ use termion::{
 use types::Point;
 
 // point count
-const COUNT: u8 = 5;
+const COUNT: u8 = 4;
 
 fn main() -> io::Result<()>{
     // Cleanup when program executes. show cursor, clear screen
@@ -33,19 +33,19 @@ fn main() -> io::Result<()>{
     loop {
         // Print and step points
         for point in pv.iter_mut() {
+            point.step();
             print!(
-                "{}{}x",
+                "{}{}\u{2588}", // full block
                 cursor::Goto(point.pos.0, point.pos.1),
                 color::Fg(point.color.as_ref())
             );
-            point.step();
         }
 
-        // Flush the output to the terminal
-        io::stdout().flush()?;
-        sleep(Duration::from_millis(50));
+    // Flush the output to the terminal
+    io::stdout().flush()?;
+    sleep(Duration::from_millis(50));
 
-        // testing
-        // print!("{}", clear::All);
+    // testing
+    // print!("{}", clear::All);
     }
 }
