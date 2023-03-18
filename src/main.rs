@@ -11,7 +11,7 @@ use termion::{
 use types::Point;
 
 // point count
-const COUNT: u8 = 5;
+const COUNT: u8 = 3;
 // Trail characters
 const TRAILS: [[char; 4]; 4] = [
     ['━', '┗', '━', '┏'],
@@ -48,14 +48,11 @@ fn main() -> io::Result<()>{
                 color::Fg(point.color.as_ref()),
                 ch
             );
-            point.step();
+            point.step(&bounds);
         }
 
     // Flush the output to the terminal
     io::stdout().flush()?;
-    sleep(Duration::from_millis(50));
-
-    // testing
-    // print!("{}", clear::All);
+    sleep(Duration::from_millis(30));
     }
 }
