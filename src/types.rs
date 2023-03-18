@@ -1,8 +1,6 @@
 use termion::color::{self, Color};
 use std::time::SystemTime;
 
-
-
 // Generate random num and mod by ceil
 fn gen_rand(ceil: u16) -> u16 {
     let mut lcg = Lcg::new();
@@ -100,26 +98,24 @@ impl Direction {
 
 // Simple Point datatype to store a position on the screen
 // and direction. 
-pub struct Point<'a> {
+pub struct Point {
     pub pos: (u16, u16),
     pub color: Box<dyn Color>,
     pub next_direction: Direction,
     pub direction: Direction,
-    bounds: &'a (u16, u16)
 }
 
-impl<'a> Point<'a> {
+impl Point {
     fn new(
         pos: (u16, u16),
         color: Box<dyn Color>,
         direction: Direction,
         next_direction: Direction,
-        bounds: &'a (u16, u16),
-    ) -> Self 
-    { Point { pos, color, direction, next_direction, bounds } }
+        ) -> Self 
+    { Point { pos, color, direction, next_direction} }
 
     // random point initalization
-    pub fn rand_init(c: u8, bounds: &'a (u16, u16)) -> Vec<Point<'a>> {
+    pub fn rand_init(c: u8, bounds: &(u16, u16)) -> Vec<Point> {
         let mut pv: Vec<Point> = vec![];
 
         for _ in 0..c {
@@ -133,7 +129,6 @@ impl<'a> Point<'a> {
                 color(gen_rand(16) as u8),
                 Direction::direction(direction),
                 Direction::direction(direction),
-                bounds
             ));
         }
 
@@ -141,31 +136,41 @@ impl<'a> Point<'a> {
     }
 
     // step a point, with bounds checking
-    pub fn step(&mut self) -> () {
+    pub fn step(&mut self, bounds: &(u16, u16)) -> () {
         self.direction = Direction::direction(self.next_direction.int());
 
-        // randomly change direction
-        let mut gr = gen_rand(25);
-
+        // move function
+        // if point is out of bounds, pass thru
+        // this is so unclean
         match self.direction {
             Direction::Left => {
-                if self.pos.0 > 1 { self.pos.0 -= 1; }
-                else { gr = 1; }
+                self.pos.0 -= 1;
+                if self.pos.0 < 1 {
+                    self.pos.0 = bounds.0;
+                }
             },
             Direction::Right => {
-                if self.pos.0 < self.bounds.0 - 1 { self.pos.0 += 1; }
-                else { gr = 1; }
+                self.pos.0 += 1;
+                if self.pos.0 > bounds.0 {
+                    self.pos.0 = 1;
+                }
             },
             Direction::Up => {
-                if self.pos.1 > 1 { self.pos.1 -= 1; }
-                else { gr = 1; }
+                self.pos.1 -= 1;
+                if self.pos.1 < 1 {
+                    self.pos.1 = bounds.1;
+                }
             },
             Direction::Down => {
-                if self.pos.1 <= self.bounds.1 { self.pos.1 += 1; }
-                else { gr = 1; }
+                self.pos.1 += 1;
+                if self.pos.1 > bounds.1 {
+                    self.pos.1 = 1;
+                }
             },
         }
 
+        // randomly change direction
+        let gr = gen_rand(25);
         if gr != 1 { return; }
         let mv = gen_rand(2);
         if self.next_direction.int() % 2 == 0 {
@@ -183,5 +188,3 @@ impl<'a> Point<'a> {
         }
     }
 }
-
-
