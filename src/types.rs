@@ -112,9 +112,8 @@ impl Point {
         pos: (u16, u16),
         color: Box<dyn Color>,
         direction: Direction,
-        next_direction: Direction,
-        ) -> Self 
-    { Point { pos, color, direction, next_direction} }
+        next_direction: Direction ) -> Self 
+    { Point { pos, color, direction, next_direction } }
 
     // random point initalization
     pub fn rand_init(c: u8, bounds: &(u16, u16)) -> Vec<Point> {
@@ -138,8 +137,10 @@ impl Point {
     }
 
     // step a point, with bounds checking
-    pub fn step(&mut self, bounds: &(u16, u16)) -> () {
+    pub fn step(&mut self, bounds: &(u16, u16)) -> bool {
         self.direction = Direction::from(self.next_direction.get_u8());
+
+        let mut cont = false;
 
         // move function
         // if point is out of bounds, pass thru
@@ -149,31 +150,35 @@ impl Point {
                 self.pos.0 -= 1;
                 if self.pos.0 < 1 {
                     self.pos.0 = bounds.0;
+                    cont = true;
                 }
             },
             Direction::Right => {
                 self.pos.0 += 1;
                 if self.pos.0 > bounds.0 {
                     self.pos.0 = 1;
+                    cont = true;
                 }
             },
             Direction::Up => {
                 self.pos.1 -= 1;
                 if self.pos.1 < 1 {
                     self.pos.1 = bounds.1;
+                    cont = true;
                 }
             },
             Direction::Down => {
                 self.pos.1 += 1;
                 if self.pos.1 > bounds.1 {
                     self.pos.1 = 1;
+                    cont = true;
                 }
             },
         }
 
         // randomly change direction
         let gr = gen_rand(TURNCHANCE);
-        if gr != 1 { return; }
+        if gr != 1 { return cont; }
         let mv = gen_rand(2);
         if self.next_direction.get_u8() % 2 == 0 {
             match mv {
@@ -188,5 +193,7 @@ impl Point {
                 _ => panic!(),
             }
         }
+
+        cont
     }
 }
