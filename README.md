@@ -3,22 +3,14 @@ make your terminal look like lightcycles from Tron :)
 heavily(and I mean heavily) inspired by pipes.sh
 
 ## Installation
-first, make sure git and cargo are installed
+first, make sure cargo is installed
 ```
 cargo --version
-git --version
 ```
 
-navigate to your intended directory, clone, and build
+navigate to your intended directory and install
 ```
-git clone https://github.com/arael34/lightcycles.git .
-cd lightcycles
-cargo build --release
-```
-
-finally, install lightcycles
-```
-cargo install --path .
+cargo install --git https://github.com/arael34/lightcycles
 ```
 
 you should now be able to run it.

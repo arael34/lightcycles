@@ -1,4 +1,4 @@
-mod types;
+    mod types;
 
 use std::{io::{self, Write}, thread::sleep, time::Duration};
 use termion::{
@@ -54,15 +54,15 @@ fn main() -> io::Result<()>{
             point.step(&bounds);
         }
 
-    // Flush the output to the terminal
-    io::stdout().flush()?;
-    sleep(Duration::from_millis(30));
-    
-    n += 1;
-    // reset terminal after a certain number of prints
-    if n < s { continue; }
-    print!("{}", clear::All);
-    n = 0;
+        // Flush the output to the terminal
+        io::stdout().flush()?;
+        sleep(Duration::from_millis(30));
+        
+        n += 1;
+        // reset terminal after a certain number of prints
+        if n < s { continue; }
+        print!("{}", clear::All);
+        n = 0;
     }
 
     Ok(())
