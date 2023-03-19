@@ -68,30 +68,31 @@ impl Iterator for Lcg {
     }
 }
 
-
 pub enum Direction {
     Left, Right,
     Up, Down,
 }
 
 impl Direction {
-    // u8 to direction
-    pub fn direction(n: u8) -> Self {
-        match n {
-            0 => Self::Left,
-            1 => Self::Up,
-            2 => Self::Right,
-            3 => Self::Down,
-            _ => panic!(),
+    pub fn get_u8(&self) -> u8 {
+        match self {
+            Direction::Left => 0,
+            Direction::Up => 1,
+            Direction::Right => 2,
+            Direction::Down => 3,
         }
     }
-    // direction to u8
-    pub fn int(&self) -> u8 {
-        match self {
-            Self::Left => 0,
-            Self::Up => 1,
-            Self::Right => 2,
-            Self::Down => 3,
+}
+
+// u8 to direction
+ impl From<u8> for Direction {
+    fn from(n: u8) -> Self {
+        match n {
+            0 => Direction::Left,
+            1 => Direction::Up,
+            2 => Direction::Right,
+            3 => Direction::Down,
+            _ => panic!(),
         }
     }
  }
@@ -127,8 +128,8 @@ impl Point {
                     gen_rand(bounds.1 - 1) + 1
                 ),
                 color(gen_rand(16) as u8),
-                Direction::direction(direction),
-                Direction::direction(direction),
+                Direction::from(direction),
+                Direction::from(direction),
             ));
         }
 
@@ -137,7 +138,7 @@ impl Point {
 
     // step a point, with bounds checking
     pub fn step(&mut self, bounds: &(u16, u16)) -> () {
-        self.direction = Direction::direction(self.next_direction.int());
+        self.direction = Direction::from(self.next_direction.get_u8());
 
         // move function
         // if point is out of bounds, pass thru
@@ -173,7 +174,7 @@ impl Point {
         let gr = gen_rand(25);
         if gr != 1 { return; }
         let mv = gen_rand(2);
-        if self.next_direction.int() % 2 == 0 {
+        if self.next_direction.get_u8() % 2 == 0 {
             match mv {
                 0 => self.next_direction = Direction::Up,
                 1 => self.next_direction = Direction::Down,
