@@ -1,4 +1,4 @@
-    mod types;
+mod types;
 
 use std::{io::{self, Write}, thread::sleep, time::Duration};
 use termion::{
