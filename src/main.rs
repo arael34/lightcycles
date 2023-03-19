@@ -19,6 +19,8 @@ const TRAILS: [[char; 4]; 4] = [
     ['━', '┛', '━', '┓'],
     ['┛', '┃', '┗', '┃'],
 ];
+// chance that a point will turn, 1/TURNCHANCE
+pub const TURNCHANCE: u16 = 20;
 
 fn main() -> io::Result<()>{
     // Cleanup when program executes. show cursor, clear screen
@@ -40,7 +42,7 @@ fn main() -> io::Result<()>{
     let mut n = 0;
 
     // event loop
-    while n < s {
+    loop {
         // Print and step points
         for point in pv.iter_mut() {
             let ch = TRAILS[(&point.direction).get_u8() as usize]
@@ -64,6 +66,4 @@ fn main() -> io::Result<()>{
         print!("{}", clear::All);
         n = 0;
     }
-
-    Ok(())
 }

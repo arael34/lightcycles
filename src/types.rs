@@ -1,5 +1,6 @@
 use termion::color::{self, Color};
 use std::time::SystemTime;
+use crate::TURNCHANCE;
 
 // Generate random num and mod by ceil
 fn gen_rand(ceil: u16) -> u16 {
@@ -171,7 +172,7 @@ impl Point {
         }
 
         // randomly change direction
-        let gr = gen_rand(25);
+        let gr = gen_rand(TURNCHANCE);
         if gr != 1 { return; }
         let mv = gen_rand(2);
         if self.next_direction.get_u8() % 2 == 0 {
