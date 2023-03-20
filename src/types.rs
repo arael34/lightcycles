@@ -32,7 +32,7 @@ fn color(n: u8) -> Box<dyn Color> {
         14 => return Box::new(color::LightCyan),
         15 => return Box::new(color::LightWhite),
 
-        _ => panic!()
+        _ => panic!("invalid color!")
     }
 }
 
@@ -93,7 +93,7 @@ impl Direction {
             1 => Direction::Up,
             2 => Direction::Right,
             3 => Direction::Down,
-            _ => panic!(),
+            _ => panic!("invalid direction!"),
         }
     }
  }
@@ -179,19 +179,14 @@ impl Point {
         // randomly change direction
         let gr = gen_rand(TURNCHANCE);
         if gr != 1 { return cont; }
-        let mv = gen_rand(2);
-        if self.next_direction.get_u8() % 2 == 0 {
-            match mv {
-                0 => self.next_direction = Direction::Up,
-                1 => self.next_direction = Direction::Down,
-                _ => panic!(),
-            }
-        } else {
-            match mv {
-                0 => self.next_direction = Direction::Left,
-                1 => self.next_direction = Direction::Right,
-                _ => panic!(),
-            }
+
+        // if we're turning from horizontal to vertical, increment dir val by 1
+        let inc = if self.next_direction.get_u8() % 2 == 0 { 1 } else { 0 };
+        let r = gen_rand(2) as u8;
+        match r {
+            0 => self.next_direction = Direction::from(r + inc),
+            1 => self.next_direction = Direction::from(r + inc + 1),
+            _ => panic!("invalid mv"),
         }
 
         cont
