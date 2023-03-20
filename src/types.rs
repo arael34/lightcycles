@@ -61,17 +61,15 @@ impl Direction {
 pub struct Point {
     pub pos: (u16, u16),
     pub color: Box<dyn Color>,
-    pub next_direction: Direction,
-    pub direction: Direction,
+    pub direction: (Direction, Direction)
 }
 
 impl Point {
     fn new(
         pos: (u16, u16),
         color: Box<dyn Color>,
-        direction: Direction,
-        next_direction: Direction ) -> Self 
-    { Point { pos, color, direction, next_direction } }
+        direction: (Direction, Direction) ) -> Self 
+    { Point { pos, color, direction } }
 
     // random point initalization
     pub fn rand_init(c: u8, bounds: &(u16, u16)) -> Vec<Point> {
@@ -86,8 +84,7 @@ impl Point {
                     fastrand::u16(1..bounds.1 - 1)
                 ),
                 color(fastrand::u8(0..16)),
-                Direction::from(direction),
-                Direction::from(direction),
+                (Direction::from(direction), Direction::from(direction)),
             ));
         }
 
@@ -95,57 +92,56 @@ impl Point {
     }
 
     // step a point, with bounds checking
+    // return: whether the point has hit the edge or not
     pub fn step(&mut self, bounds: &(u16, u16)) -> bool {
-        self.direction = Direction::from(self.next_direction.get_u8());
-
-        let mut cont = false;
+        self.direction.0 = Direction::from(self.direction.1.get_u8());
 
         // move function
         // if point is out of bounds, pass thru
         // this is so unclean
-        match self.direction {
+        match self.direction.0 {
             Direction::Left => {
                 self.pos.0 -= 1;
                 if self.pos.0 < 1 {
                     self.pos.0 = bounds.0;
-                    cont = true;
+                    return true;
                 }
             },
             Direction::Right => {
                 self.pos.0 += 1;
                 if self.pos.0 > bounds.0 {
                     self.pos.0 = 1;
-                    cont = true;
+                    return true;
                 }
             },
             Direction::Up => {
                 self.pos.1 -= 1;
                 if self.pos.1 < 1 {
                     self.pos.1 = bounds.1;
-                    cont = true;
+                    return true;
                 }
             },
             Direction::Down => {
                 self.pos.1 += 1;
                 if self.pos.1 > bounds.1 {
                     self.pos.1 = 1;
-                    cont = true;
+                    return true;
                 }
             },
         }
 
         // randomly change direction
         let gr = fastrand::u8(0..TURNCHANCE);
-        if gr != 1 { return cont; }
+        if gr != 1 { return false; }
 
         // if we're turning from horizontal to vertical, increment dir val by 1
-        let inc = if self.next_direction.get_u8() % 2 == 0 { 1 } else { 0 };
+        let inc = if self.direction.1.get_u8() % 2 == 0 { 1 } else { 0 };
         let r = fastrand::bool();
         match r {
-            false => self.next_direction = Direction::from(inc),
-            true => self.next_direction = Direction::from(inc + 2),
+            false => self.direction.1 = Direction::from(inc),
+            true => self.direction.1 = Direction::from(inc + 2),
         }
 
-        cont
+        false
     }
 }

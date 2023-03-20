@@ -25,7 +25,7 @@ const TRAILS: [[char; 4]; 4] = [
     ['┛', '┃', '┗', '┃'],
 ];
 // chance that a point will turn, 1/TURNCHANCE
-pub const TURNCHANCE: u8 = 12;
+pub const TURNCHANCE: u8 = 10;
 
 fn main() -> io::Result<()>{
     let stdout = stdout();
@@ -57,8 +57,8 @@ fn main() -> io::Result<()>{
 
          // Print and step point
          let point = &mut pv[active as usize];
-         let ch = TRAILS[(&point.direction).get_u8() as usize]
-             [(&point.next_direction).get_u8() as usize];
+         let ch = TRAILS[(&point.direction.0).get_u8() as usize]
+             [(&point.direction.1).get_u8() as usize];
          write!(
              stdout,
              "{}{}{}",
