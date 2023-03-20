@@ -1,13 +1,5 @@
 use termion::color::{self, Color};
-use std::time::SystemTime;
-
-// Generate random num and mod by ceil
-fn gen_rand(ceil: u16) -> u16 {
-    let mut lcg = Lcg::new();
-    let num = lcg.next().unwrap() as u16 % ceil;
-
-    num
-}
+use crate::TURNCHANCE;
 
 fn color(n: u8) -> Box<dyn Color> {
     match n {
@@ -31,43 +23,9 @@ fn color(n: u8) -> Box<dyn Color> {
         14 => return Box::new(color::LightCyan),
         15 => return Box::new(color::LightWhite),
 
-        _ => panic!()
+        _ => panic!("invalid color!")
     }
 }
-
-// Pseudorandom number gen
-struct Lcg {
-    state: u64,
-    a: u64,
-    c: u64,
-}
-
-impl Lcg {
-    fn new() -> Self {
-        // initialize with "random" state
-        let state = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos() as u64;
-
-        Lcg {
-            state,
-            a: 1664525,
-            c: 1013904223,
-        }
-    }
-}
-
-impl Iterator for Lcg {
-    type Item = u64;
-
-    // Generate new "random" number
-    fn next(&mut self) -> Option<Self::Item> {
-        self.state = self.a.wrapping_mul(self.state).wrapping_add(self.c);
-        Some(self.state)
-    }
-}
-
 
 pub enum Direction {
     Left, Right,
@@ -75,23 +33,25 @@ pub enum Direction {
 }
 
 impl Direction {
-    // u8 to direction
-    pub fn direction(n: u8) -> Self {
-        match n {
-            0 => Self::Left,
-            1 => Self::Up,
-            2 => Self::Right,
-            3 => Self::Down,
-            _ => panic!(),
+    pub fn get_u8(&self) -> u8 {
+        match self {
+            Direction::Left => 0,
+            Direction::Up => 1,
+            Direction::Right => 2,
+            Direction::Down => 3,
         }
     }
-    // direction to u8
-    pub fn int(&self) -> u8 {
-        match self {
-            Self::Left => 0,
-            Self::Up => 1,
-            Self::Right => 2,
-            Self::Down => 3,
+}
+
+// u8 to direction
+ impl From<u8> for Direction {
+    fn from(n: u8) -> Self {
+        match n {
+            0 => Direction::Left,
+            1 => Direction::Up,
+            2 => Direction::Right,
+            3 => Direction::Down,
+            _ => panic!("invalid direction!"),
         }
     }
  }
@@ -110,25 +70,24 @@ impl Point {
         pos: (u16, u16),
         color: Box<dyn Color>,
         direction: Direction,
-        next_direction: Direction,
-        ) -> Self 
-    { Point { pos, color, direction, next_direction} }
+        next_direction: Direction ) -> Self 
+    { Point { pos, color, direction, next_direction } }
 
     // random point initalization
     pub fn rand_init(c: u8, bounds: &(u16, u16)) -> Vec<Point> {
         let mut pv: Vec<Point> = vec![];
 
         for _ in 0..c {
-            let direction = gen_rand(4) as u8;
+            let direction = fastrand::u8(0..4);
 
             pv.push(Self::new(
                 (
-                    gen_rand(bounds.0 - 1) + 1,
-                    gen_rand(bounds.1 - 1) + 1
+                    fastrand::u16(1..bounds.0 - 1),
+                    fastrand::u16(1..bounds.1 - 1)
                 ),
-                color(gen_rand(16) as u8),
-                Direction::direction(direction),
-                Direction::direction(direction),
+                color(fastrand::u8(0..16)),
+                Direction::from(direction),
+                Direction::from(direction),
             ));
         }
 
@@ -136,8 +95,10 @@ impl Point {
     }
 
     // step a point, with bounds checking
-    pub fn step(&mut self, bounds: &(u16, u16)) -> () {
-        self.direction = Direction::direction(self.next_direction.int());
+    pub fn step(&mut self, bounds: &(u16, u16)) -> bool {
+        self.direction = Direction::from(self.next_direction.get_u8());
+
+        let mut cont = false;
 
         // move function
         // if point is out of bounds, pass thru
@@ -147,44 +108,44 @@ impl Point {
                 self.pos.0 -= 1;
                 if self.pos.0 < 1 {
                     self.pos.0 = bounds.0;
+                    cont = true;
                 }
             },
             Direction::Right => {
                 self.pos.0 += 1;
                 if self.pos.0 > bounds.0 {
                     self.pos.0 = 1;
+                    cont = true;
                 }
             },
             Direction::Up => {
                 self.pos.1 -= 1;
                 if self.pos.1 < 1 {
                     self.pos.1 = bounds.1;
+                    cont = true;
                 }
             },
             Direction::Down => {
                 self.pos.1 += 1;
                 if self.pos.1 > bounds.1 {
                     self.pos.1 = 1;
+                    cont = true;
                 }
             },
         }
 
         // randomly change direction
-        let gr = gen_rand(25);
-        if gr != 1 { return; }
-        let mv = gen_rand(2);
-        if self.next_direction.int() % 2 == 0 {
-            match mv {
-                0 => self.next_direction = Direction::Up,
-                1 => self.next_direction = Direction::Down,
-                _ => panic!(),
-            }
-        } else {
-            match mv {
-                0 => self.next_direction = Direction::Left,
-                1 => self.next_direction = Direction::Right,
-                _ => panic!(),
-            }
+        let gr = fastrand::u8(0..TURNCHANCE);
+        if gr != 1 { return cont; }
+
+        // if we're turning from horizontal to vertical, increment dir val by 1
+        let inc = if self.next_direction.get_u8() % 2 == 0 { 1 } else { 0 };
+        let r = fastrand::bool();
+        match r {
+            false => self.next_direction = Direction::from(inc),
+            true => self.next_direction = Direction::from(inc + 2),
         }
+
+        cont
     }
 }
