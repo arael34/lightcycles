@@ -25,7 +25,7 @@ const TRAILS: [[char; 4]; 4] = [
     ['┛', '┃', '┗', '┃'],
 ];
 // chance that a point will turn, 1/TURNCHANCE
-pub const TURNCHANCE: u16 = 12;
+pub const TURNCHANCE: u8 = 12;
 
 fn main() -> io::Result<()>{
     let stdout = stdout();

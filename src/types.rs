@@ -1,14 +1,5 @@
 use termion::color::{self, Color};
-use std::time::SystemTime;
 use crate::TURNCHANCE;
-
-// Generate random num and mod by ceil
-fn gen_rand(ceil: u16) -> u16 {
-    let mut lcg = Lcg::new();
-    let num = lcg.next().unwrap() as u16 % ceil;
-
-    num
-}
 
 fn color(n: u8) -> Box<dyn Color> {
     match n {
@@ -33,39 +24,6 @@ fn color(n: u8) -> Box<dyn Color> {
         15 => return Box::new(color::LightWhite),
 
         _ => panic!("invalid color!")
-    }
-}
-
-// Pseudorandom number gen
-struct Lcg {
-    state: u64,
-    a: u64,
-    c: u64,
-}
-
-impl Lcg {
-    fn new() -> Self {
-        // initialize with "random" state
-        let state = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos() as u64;
-
-        Lcg {
-            state,
-            a: 1664525,
-            c: 1013904223,
-        }
-    }
-}
-
-impl Iterator for Lcg {
-    type Item = u64;
-
-    // Generate new "random" number
-    fn next(&mut self) -> Option<Self::Item> {
-        self.state = self.a.wrapping_mul(self.state).wrapping_add(self.c);
-        Some(self.state)
     }
 }
 
@@ -120,14 +78,14 @@ impl Point {
         let mut pv: Vec<Point> = vec![];
 
         for _ in 0..c {
-            let direction = gen_rand(4) as u8;
+            let direction = fastrand::u8(0..4);
 
             pv.push(Self::new(
                 (
-                    gen_rand(bounds.0 - 1) + 1,
-                    gen_rand(bounds.1 - 1) + 1
+                    fastrand::u16(1..bounds.0 - 1),
+                    fastrand::u16(1..bounds.1 - 1)
                 ),
-                color(gen_rand(16) as u8),
+                color(fastrand::u8(0..16)),
                 Direction::from(direction),
                 Direction::from(direction),
             ));
@@ -177,16 +135,15 @@ impl Point {
         }
 
         // randomly change direction
-        let gr = gen_rand(TURNCHANCE);
+        let gr = fastrand::u8(0..TURNCHANCE);
         if gr != 1 { return cont; }
 
         // if we're turning from horizontal to vertical, increment dir val by 1
         let inc = if self.next_direction.get_u8() % 2 == 0 { 1 } else { 0 };
-        let r = gen_rand(2) as u8;
+        let r = fastrand::bool();
         match r {
-            0 => self.next_direction = Direction::from(r + inc),
-            1 => self.next_direction = Direction::from(r + inc + 1),
-            _ => panic!("invalid mv"),
+            false => self.next_direction = Direction::from(inc),
+            true => self.next_direction = Direction::from(inc + 2),
         }
 
         cont
