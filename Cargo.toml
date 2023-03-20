@@ -7,8 +7,8 @@ edition = "2021"
 
 [profile.release]
 strip=true
+lto=true
 panic="abort"
 
 [dependencies]
 termion="2.0.1"
-ctrlc={version="3.2.5", features=["termination"]}
