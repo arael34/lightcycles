@@ -96,9 +96,21 @@ impl Point {
     pub fn step(&mut self, bounds: &(u16, u16)) -> bool {
         self.direction.0 = Direction::from(self.direction.1.get_u8());
 
+        // randomly change direction
+        let gr = fastrand::u8(0..TURNCHANCE);
+        if gr == 1 {
+            // if we're turning from horizontal to vertical, increment dir val by 1
+            let inc = if self.direction.1.get_u8() % 2 == 0 { 1 } else { 0 };
+            let r = fastrand::bool();
+            match r {
+                false => self.direction.1 = Direction::from(inc),
+                true => self.direction.1 = Direction::from(inc + 2),
+            }
+        }
+
         // move function
         // if point is out of bounds, pass thru
-        // this is so unclean
+        // this is a little unclean
         match self.direction.0 {
             Direction::Left => {
                 self.pos.0 -= 1;
@@ -128,18 +140,6 @@ impl Point {
                     return true;
                 }
             },
-        }
-
-        // randomly change direction
-        let gr = fastrand::u8(0..TURNCHANCE);
-        if gr != 1 { return false; }
-
-        // if we're turning from horizontal to vertical, increment dir val by 1
-        let inc = if self.direction.1.get_u8() % 2 == 0 { 1 } else { 0 };
-        let r = fastrand::bool();
-        match r {
-            false => self.direction.1 = Direction::from(inc),
-            true => self.direction.1 = Direction::from(inc + 2),
         }
 
         false
