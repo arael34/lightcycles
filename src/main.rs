@@ -1,4 +1,5 @@
 mod types;
+mod parse;
 
 use std::{
     io::{self, stdout, Read, Write},
@@ -14,18 +15,7 @@ use termion::{
     raw::IntoRawMode, async_stdin,
 };
 use types::Point;
-
-// point count
-const COUNT: u8 = 4;
-// Trail characters
-const TRAILS: [[char; 4]; 4] = [
-    ['━', '┗', '━', '┏'],
-    ['┓', '┃', '┏', '┃'],
-    ['━', '┛', '━', '┓'],
-    ['┛', '┃', '┗', '┃'],
-];
-// chance that a point will turn, 1/TURNCHANCE
-pub const TURNCHANCE: u8 = 10;
+use parse::Config;
 
 fn main() -> io::Result<()>{
     let stdout = stdout();
@@ -37,7 +27,13 @@ fn main() -> io::Result<()>{
 
     // terminal bounds and vec of points
     let bounds:(u16, u16) = terminal_size().unwrap();
-    let mut pv: Vec<Point> = Point::rand_init(COUNT, &bounds);
+
+    let config = Config::parse();
+    let trails = config.trailkind().into_chars();
+    let num = config.number();
+    let turnchance = config.turnchance();
+
+    let mut pv: Vec<Point> = Point::rand_init(num, &bounds);
 
     let s: u32 = bounds.0 as u32 * bounds.1 as u32 * 3 / 4;
     let mut n = 0;
@@ -57,7 +53,7 @@ fn main() -> io::Result<()>{
 
          // Print and step point
          let point = &mut pv[active as usize];
-         let ch = TRAILS[(&point.direction.0).get_u8() as usize]
+         let ch = trails[(&point.direction.0).get_u8() as usize]
              [(&point.direction.1).get_u8() as usize];
          write!(
              stdout,
@@ -66,8 +62,8 @@ fn main() -> io::Result<()>{
              color::Fg(point.color.as_ref()),
              ch
          )?;
-         if point.step(&bounds) { active += 1; }
-         if active as u8 >= COUNT { active = 0; }
+         if point.step(&bounds, turnchance) { active += 1; }
+         if active as u8 >= num { active = 0; }
          
          // pause
          sleep(Duration::from_millis(30));
