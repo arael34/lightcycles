@@ -15,25 +15,35 @@ use termion::{
     raw::IntoRawMode, async_stdin,
 };
 use types::Point;
-use parse::Config;
+use parse::{Config, TrailKind};
 
 fn main() -> io::Result<()>{
     let stdout = stdout();
     let mut stdout = stdout.into_raw_mode().unwrap();
     let mut stdin = async_stdin().bytes();
 
-    // Clear screen and hide cursor
-    write!(stdout, "{}{}{}", clear::All, style::Bold, Hide)?;
-
     // terminal bounds and vec of points
     let bounds:(u16, u16) = terminal_size().unwrap();
 
-    let config = Config::parse();
-    let trails = config.trailkind().into_chars();
-    let num = config.number();
-    let turnchance = config.turnchance();
+    let config = match Config::parse() {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("Error: {}.", e);
+            std::process::exit(1);
+        }
+    };
 
-    let mut pv: Vec<Point> = Point::rand_init(num, &bounds);
+    let number = config.number.unwrap_or(5);
+    let trails = config.trailkind.unwrap_or(TrailKind::Default).into_chars();
+    let bold = config.bold.unwrap_or(false);
+    let delay = config.delay.unwrap_or(30);
+    let turnchance = config.turnchance.unwrap_or(13);
+
+    // Clear screen and hide cursor
+    if bold { write!(stdout, "{}{}{}", clear::All, style::Bold, Hide)?; }
+    else { write!(stdout, "{}{}", clear::All, Hide)?; }    
+
+    let mut pv: Vec<Point> = Point::rand_init(number, &bounds);
 
     let s: u32 = bounds.0 as u32 * bounds.1 as u32 * 3 / 4;
     let mut n = 0;
@@ -63,10 +73,10 @@ fn main() -> io::Result<()>{
              ch
          )?;
          if point.step(&bounds, turnchance) { active += 1; }
-         if active as u8 >= num { active = 0; }
+         if active as u8 >= number { active = 0; }
          
          // pause
-         sleep(Duration::from_millis(30));
+         sleep(Duration::from_millis(delay));
          n += 1;
  
          // reset terminal after a certain number of prints

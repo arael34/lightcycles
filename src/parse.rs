@@ -48,36 +48,26 @@ impl std::str::FromStr for TrailKind {
 }
 
 pub struct Config {
-
     pub number: Option<u8>,
-
     pub trailkind: Option<TrailKind>,
-
     pub bold: Option<bool>,
-
-    pub delay: Option<u16>,
-
+    pub delay: Option<u64>,
     pub turnchance: Option<u8>,
 }
 
 impl Config {
-    pub fn number(&self) -> u8 {
-        self.number.unwrap_or(5)
-    }
-    pub fn trailkind(&self) -> TrailKind {
-        self.trailkind.unwrap_or(TrailKind::Default)
-    }
-    pub fn bold(&self) -> bool {
-        self.bold.unwrap_or(false)
-    }
-    pub fn delay(&self) -> u16 {
-        self.delay.unwrap_or(30)
-    }
-    pub fn turnchance(&self) -> u8 {
-        self.turnchance.unwrap_or(10)
-    }
-}
+    pub fn parse() -> Result<Config, pico_args::Error> {
+        let mut args = pico_args::Arguments::from_env();
 
-pub fn parse_args() -> Result<Config, pico_args::Error> {
+        let config = Config {
+            // get optional values
+            number: args.opt_value_from_str("--number")?,
+            trailkind: args.opt_value_from_str("--trailkind")?,
+            bold: args.opt_value_from_str("--bold")?,
+            delay: args.opt_value_from_str("--delay")?,
+            turnchance: args.opt_value_from_str("--turnchance")?,
+        };
 
+        Ok(config)
+    }
 }
