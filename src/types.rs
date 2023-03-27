@@ -1,5 +1,4 @@
 use termion::color::{self, Color};
-use crate::TURNCHANCE;
 
 fn color(n: u8) -> Box<dyn Color> {
     match n {
@@ -72,10 +71,10 @@ impl Point {
     { Point { pos, color, direction } }
 
     // random point initalization
-    pub fn rand_init(c: u8, bounds: &(u16, u16)) -> Vec<Point> {
+    pub fn rand_init(n: u8, bounds: &(u16, u16)) -> Vec<Point> {
         let mut pv: Vec<Point> = vec![];
 
-        for _ in 0..c {
+        for _ in 0..n {
             let direction = fastrand::u8(0..4);
 
             pv.push(Self::new(
@@ -93,11 +92,11 @@ impl Point {
 
     // step a point, with bounds checking
     // return: whether the point has hit the edge or not
-    pub fn step(&mut self, bounds: &(u16, u16)) -> bool {
+    pub fn step(&mut self, bounds: &(u16, u16), turnchance: u8) -> bool {
         self.direction.0 = Direction::from(self.direction.1.get_u8());
 
         // randomly change direction
-        let gr = fastrand::u8(0..TURNCHANCE);
+        let gr = fastrand::u8(0..turnchance);
         if gr == 1 {
             // if we're turning from horizontal to vertical, increment dir val by 1
             let inc = if self.direction.1.get_u8() % 2 == 0 { 1 } else { 0 };
