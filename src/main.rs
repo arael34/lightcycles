@@ -46,7 +46,7 @@ fn main() -> io::Result<()>{
     let mut pv: Vec<Point> = Point::rand_init(number, &bounds);
 
     let s: u32 = bounds.0 as u32 * bounds.1 as u32 * 3 / 4;
-    let mut n = 0;
+    let mut n: u32 = 0;
 
     let mut active: usize = 0;
 
@@ -82,6 +82,7 @@ fn main() -> io::Result<()>{
          // reset terminal after a certain number of prints
          if n < s { continue; }
          write!(stdout, "{}", clear::All)?;
+         pv = Point::rand_init(number, &bounds);
          n = 0;
     }
 
