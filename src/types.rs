@@ -26,6 +26,7 @@ fn color(n: u8) -> Box<dyn Color> {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum Direction {
     Left, Right,
     Up, Down,
@@ -64,27 +65,25 @@ pub struct Point {
 }
 
 impl Point {
-    fn new(
-        pos: (u16, u16),
-        color: Box<dyn Color>,
-        direction: (Direction, Direction) ) -> Self 
-    { Point { pos, color, direction } }
-
     // random point initalization
     pub fn rand_init(n: u8, bounds: &(u16, u16)) -> Vec<Point> {
         let mut pv: Vec<Point> = vec![];
 
         for _ in 0..n {
-            let direction = fastrand::u8(0..4);
+            let direction = Direction::from(fastrand::u8(0..4));
+            let pos: (u16, u16);
+            match direction {
+                Direction::Left => pos = (bounds.0, fastrand::u16(1..bounds.1)),
+                Direction::Up => pos = (fastrand::u16(1..bounds.0), bounds.1),
+                Direction::Right => pos = (1, fastrand::u16(1..bounds.1)),
+                Direction::Down => pos = (fastrand::u16(1..bounds.0), 1),
+            }
 
-            pv.push(Self::new(
-                (
-                    fastrand::u16(1..bounds.0 - 1),
-                    fastrand::u16(1..bounds.1 - 1)
-                ),
-                color(fastrand::u8(0..16)),
-                (Direction::from(direction), Direction::from(direction)),
-            ));
+            pv.push(Self {
+                pos,
+                color: color(fastrand::u8(0..16)),
+                direction: (direction, direction)
+            });
         }
 
         pv

@@ -53,7 +53,8 @@ impl std::str::FromStr for TrailKind {
             "outline" => Ok(Self::Outline),
             "curved" => Ok(Self::Curved),
             "dots" => Ok(Self::Dots),
-            _ => todo!(),
+            // if incorrect value is passed, just use default trail
+            _ => Ok(Self::Default)
         }
     }
 }
