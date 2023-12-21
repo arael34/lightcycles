@@ -1,10 +1,10 @@
 # Quickpipes
-a minimal version terminal screensaver
+a minimal terminal screensaver
 <div>
     <img src="images/q1.png" height=170 />
     <img src="images/q2.png" height=170 />
 </div>
-heavily(and I mean heavily) inspired by pipes.sh
+obviously inspired by pipes.sh
 
 ## Installation
 first, make sure cargo is installed
